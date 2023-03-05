@@ -1,4 +1,3 @@
-
 const int motor1PinA = 2;
 const int motor1PinB = 3;
 
@@ -24,6 +23,7 @@ long collisionTimer = 0;
 bool colliding = false;
 int initiateRunningAway = 0;
 int runningAwayTimer = 0;
+int     collisionDirection  = 0;
 
 
 
@@ -52,7 +52,7 @@ void loop() {
   int leftButtonState = digitalRead(leftButton);
   int goButtonState = digitalRead(goButton);
 
-
+ Serial.println(goButtonState);
   if (goButtonState) {
     initiateRunningAway = 1;
     runningAwayTimer = millis();
@@ -62,11 +62,11 @@ void loop() {
     startRunningAway();
   }
 
-  if (colliding == false) {
-    moveForward();
-  } else {
-    stopWheels();
-  }
+  // if (colliding == false) {
+  //   moveForward();
+  // } else {
+  //   stopWheels();
+  // }
 
 
   // if (goButtonState == HIGH) {
@@ -124,7 +124,7 @@ void stopWheels() {
 void startRunningAway() {
 
   if (millis() - runningAwayTimer < 500) turnRight();
-  else if (millis() - runningAwayTimer < 7000) {
+  else if (millis() - runningAwayTimer < 20000) {
     preventCollision();
     if (colliding == false) {
       moveForward();
@@ -151,24 +151,28 @@ void preventCollision() {
   // Serial.println(distance);
 
 
-
-  if (distance < 15) {
+  if (distance < 15 && colliding == false) {
 
     colliding = true;
-    // we might not need that
+    collisionTimer = millis();
+    collisionDirection = random(100);
+  }
+
+  if (colliding == true){
+    //  we might not need that
     // if (millis() - collisionTimer > 2000) {
     //   stopWheels();
     //   collisionTimer = millis();
     // }
 
-    if (millis() - collisionTimer > 10) {
-      turnRight();
-      collisionTimer = millis();
+    if (millis() - collisionTimer < 500) {
+      if (collisionDirection<50) turnRight();
+      else turnLeft();
+    }
+    else{
+      colliding = false;
     }
 
     Serial.println("stop!!!");
-  } else {
-    Serial.println("I'm good to go");
-    colliding = false;
-  }
+  } 
 }
